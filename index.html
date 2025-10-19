@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CopyLP</title>
+<style>
+    body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Courier New", Courier, monospace, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiSymbols";
+        background: #000;
+        color: #00ff00;
+        overflow-x: hidden;
+        min-height: 100%;
+    }
+    html { height: 100%; }
+
+    /* Matrix background */
+    .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    .matrix-column {
+        position: absolute;
+        top: -100%;
+        font-size: 14px;
+        line-height: 1.2;
+        color: #00ff00;
+        opacity: 0.7;
+        animation: matrix-fall linear infinite;
+        white-space: pre;
+        pointer-events: none;
+    }
+    @keyframes matrix-fall {
+        0% { top: -100%; opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 30px 0;
+    }
+    .title {
+        font-size: 3.2rem;
+        font-weight: bold;
+        text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
+        margin-bottom: 12px;
+        letter-spacing: 3px;
+    }
+    .welcome {
+        background: rgba(0, 10, 0, 0.75);
+        border: 1px solid #00ff00;
+        padding: 14px;
+        margin: 12px auto 28px;
+        display: inline-block;
+        border-radius: 10px;
+        max-width: 95%;
+        text-align: left;
+        box-shadow: 0 0 20px rgba(0,255,0,0.08);
+        line-height: 1.4;
+        font-size: 1rem;
+    }
+
+    .section {
+        margin-bottom: 40px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+        text-shadow: 0 0 10px #00ff00;
+    }
+
+    /* Video & Code Blocks */
+    .video-container, .code-block {
+        position: relative;
+        text-align: center;
+        background: rgba(0, 20, 0, 0.8);
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 20px rgba(0,255,0,0.3);
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .video-display, .code-block pre {
+        max-width: 100%;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+        color: #00ff00;
+        font-size: 14px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+    }
+
+    .video-upload-btn {
+        background: linear-gradient(45deg, #003300, #006600);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        padding: 12px 26px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+        user-select: none;
+    }
+    .video-upload-btn:hover {
+        background: linear-gradient(45deg, #006600, #009900);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .title { font-size: 2.2rem; }
+        .container { padding: 10px; }
+        .section { padding: 16px; }
+    }
+</style>
+</head>
+<body>
+<div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
+
+<div class="container">
+    <div class="header" role="banner">
+        <h1 class="title">CopyLP</h1>
+        <div class="welcome" role="note" aria-live="polite">
+            <strong>Olá 👋🏻 meu nome é Pinotti</strong>, eu e meu amigo <strong>Luiz</strong> criamos este site para vocês.<br><br>
+            Faço questão de dar boas vindas ao nosso site. É um prazer tê-lo aqui!<br><br>
+            O site é basicamente um desativador do bloqueio do cópia e cola das redações que está presente na sala do futuro... Quero que assistam o vídeo para que não haja dúvidas sobre o funcionamento dele!<br><br>
+            <strong>OBRIGADO 🫂</strong>
+        </div>
+    </div>
+
+    <!-- Video Section -->
+    <div class="section">
+        <h2 class="section-title">📹 Vídeo Explicativo</h2>
+        <div class="video-container">
+            <label for="videoUpload" class="video-upload-btn" tabindex="0">🎬 Importar Vídeo</label>
+            <input type="file" id="videoUpload" class="video-upload" accept="video/*" aria-label="Importar vídeo explicativo" style="display:none;">
+            <div id="videoPreview" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <!-- Code Section -->
+    <div class="section">
+        <h2 class="section-title">💻 Seu Código</h2>
+        <div class="code-block">
+            <pre><code id="codeArea">javascript:(function(){
+    var s=document.createElement('script');
+    s.src=atob('aHR0cHM6Ly9jb3B5LWxwLnZlcmNlbC5hcHAvc2NyaXB0Lmpz');
+    document.body.appendChild(s);
+})();</code></pre>
+            <div style="text-align:center; margin-top:12px;">
+                <button class="video-upload-btn" id="copyBtn" onclick="copyCode()">📋 Copiar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer" role="contentinfo">
+    <p>🌴 Desenvolvido pelos mais inteligentes da Palmeirinha 🌴</p>
+</div>
+
+<script>
+function createMatrixEffect() {
+    const matrixBg = document.getElementById('matrixBg');
+    const columns = Math.floor(window.innerWidth / 20);
+    for (let i = 0; i < columns; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = i * 20 + 'px';
+        column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        column.style.animationDelay = Math.random() * 2 + 's';
+        let binaryText = '';
+        for (let j = 0; j < 50; j++) {
+            binaryText += Math.random() > 0.5 ? '1' : '0';
+            if (j % 8 === 7) binaryText += '\n';
+        }
+        column.textContent = binaryText;
+        matrixBg.appendChild(column);
+    }
+}
+
+document.getElementById('videoUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const videoPreview = document.getElementById('videoPreview');
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.className = 'video-display';
+        video.style.width = '100%';
+        video.style.maxWidth = '800px';
+        videoPreview.innerHTML = '';
+        videoPreview.appendChild(video);
+    }
+});
+
+function copyCode() {
+    const codeArea = document.getElementById('codeArea');
+    const copyBtn = document.getElementById('copyBtn');
+    if (!codeArea.textContent || codeArea.textContent.trim() === '') {
+        alert('⚠️ Adicione um código primeiro!');
+        return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codeArea.textContent).then(() => {
+            copyBtn.textContent = '✅ Copiado!';
+            setTimeout(() => { copyBtn.textContent = '📋 Copiar'; }, 2000);
+        }).catch(() => { document.execCommand('copy'); });
+    } else { document.execCommand('copy'); }
+}
+
+createMatrixEffect();
+window.addEventListener('resize', () => {
+    const m = document.getElementById('matrixBg');
+    if (m) { m.innerHTML = ''; createMatrixEffect(); }
+});
+</script>
+</body>
+</html>
