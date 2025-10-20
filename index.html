@@ -9,12 +9,13 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: "Courier New", Courier, monospace, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiSymbols";
+        font-family: "Courier New", monospace;
         background: #000;
         color: #00ff00;
         overflow-x: hidden;
         min-height: 100%;
     }
+
     html { height: 100%; }
 
     /* Matrix background */
@@ -26,18 +27,20 @@
         height: 100%;
         z-index: -1;
         overflow: hidden;
+        pointer-events: none;
     }
+
     .matrix-column {
         position: absolute;
         top: -100%;
-        font-size: 14px;
-        line-height: 1.2;
+        font-size: 16px;
+        line-height: 1.1;
         color: #00ff00;
-        opacity: 0.7;
+        opacity: 0.8;
         animation: matrix-fall linear infinite;
         white-space: pre;
-        pointer-events: none;
     }
+
     @keyframes matrix-fall {
         0% { top: -100%; opacity: 1; }
         100% { top: 100%; opacity: 0; }
@@ -50,11 +53,13 @@
         position: relative;
         z-index: 1;
     }
+
     .header {
         text-align: center;
         margin-bottom: 30px;
         padding: 30px 0;
     }
+
     .title {
         font-size: 3.2rem;
         font-weight: bold;
@@ -62,6 +67,7 @@
         margin-bottom: 12px;
         letter-spacing: 3px;
     }
+
     .welcome {
         background: rgba(0, 10, 0, 0.75);
         border: 1px solid #00ff00;
@@ -79,6 +85,7 @@
     .section {
         margin-bottom: 40px;
     }
+
     .section-title {
         font-size: 1.5rem;
         margin-bottom: 20px;
@@ -86,7 +93,6 @@
         text-shadow: 0 0 10px #00ff00;
     }
 
-    /* Video & Code Blocks */
     .video-container, .code-block {
         position: relative;
         text-align: center;
@@ -123,6 +129,7 @@
         display: inline-block;
         user-select: none;
     }
+
     .video-upload-btn:hover {
         background: linear-gradient(45deg, #006600, #009900);
         box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
@@ -136,7 +143,8 @@
     }
 </style>
 </head>
-<body>
+
+<body onload="createMatrixEffect()">
 <div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
 
 <div class="container">
@@ -151,23 +159,22 @@
     </div>
 
     <!-- Video Section -->
-<div class="section">
-    <h2 class="section-title">📹 Vídeo Explicativo</h2>
-    <div class="video-container">
-        <div class="video-display" contenteditable="true" style="outline: 1px dashed #00ff00; padding: 10px;">
-            <iframe width="420" height="236"
-                src="https://www.youtube.com/embed/86vduWhl4Fo?si=892lfHHQ2YvOffam"
-                title="YouTube video player"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen>
-            </iframe>
+    <div class="section">
+        <h2 class="section-title">📹 Vídeo Explicativo</h2>
+        <div class="video-container">
+            <div class="video-display" contenteditable="true" style="outline: 1px dashed #00ff00; padding: 10px;">
+                <iframe width="420" height="236"
+                    src="https://www.youtube.com/embed/86vduWhl4Fo?si=892lfHHQ2YvOffam"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <p style="font-size: 0.85rem; color: #00ff00; margin-top: 10px;">🔧 Dica: para trocar o vídeo, edite o <code>src</code> do iframe acima.</p>
         </div>
-        <p style="font-size: 0.85rem; color: #00ff00; margin-top: 10px;">🔧 Dica: para trocar o vídeo, edite o <code>src</code> do iframe acima.</p>
     </div>
-</div>
-
 
     <!-- Code Section -->
     <div class="section">
@@ -185,67 +192,21 @@
     </div>
 </div>
 
-<div class="footer" role="contentinfo">
+<div class="footer" role="contentinfo" style="text-align: center; margin-top: 40px;">
     <p>🌴 Desenvolvido pelos mais inteligentes da Palmeirinha 🌴</p>
 </div>
 
 <script>
 function createMatrixEffect() {
     const matrixBg = document.getElementById('matrixBg');
+    matrixBg.innerHTML = '';
     const columns = Math.floor(window.innerWidth / 20);
     for (let i = 0; i < columns; i++) {
         const column = document.createElement('div');
         column.className = 'matrix-column';
         column.style.left = i * 20 + 'px';
-        column.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        column.style.animationDelay = Math.random() * 2 + 's';
+        column.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        column.style.animationDelay = Math.random() * 5 + 's';
+
         let binaryText = '';
-        for (let j = 0; j < 50; j++) {
-            binaryText += Math.random() > 0.5 ? '1' : '0';
-            if (j % 8 === 7) binaryText += '\n';
-        }
-        column.textContent = binaryText;
-        matrixBg.appendChild(column);
-    }
-}
-
-document.getElementById('videoUpload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const videoPreview = document.getElementById('videoPreview');
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(file);
-        video.controls = true;
-        video.className = 'video-display';
-        video.style.width = '100%';
-        video.style.maxWidth = '800px';
-        videoPreview.innerHTML = '';
-        videoPreview.appendChild(video);
-    }
-});
-
-function copyCode() {
-    const codeArea = document.getElementById('codeArea');
-    const copyBtn = document.getElementById('copyBtn');
-    if (!codeArea.textContent || codeArea.textContent.trim() === '') {
-        alert('⚠️ Adicione um código primeiro!');
-        return;
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(codeArea.textContent).then(() => {
-            copyBtn.textContent = '✅ Copiado!';
-            setTimeout(() => { copyBtn.textContent = '📋 Copiar'; }, 2000);
-        }).catch(() => { document.execCommand('copy'); });
-    } else { document.execCommand('copy'); }
-}
-
-createMatrixEffect();
-window.addEventListener('resize', () => {
-    const m = document.getElementById('matrixBg');
-    if (m) { m.innerHTML = ''; createMatrixEffect(); }
-});
-</script>
-</body>
-</html>
-
-
+       
