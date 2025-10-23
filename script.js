@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CopyLP Painel v1.7 Mobile Free Move
+// @name         CopyLP Painel v1.7 Mobile Fix
 // @namespace    http://tampermonkey.net/
-// @version      1.72
-// @description  Versão 1.7 do CopyLP com painel maximizado movel livremente, sem limites de borda, mobile/PC, mantendo visual original
+// @version      1.71
+// @description  Versão 1.7 do CopyLP com suporte para mover painel maximizado em Android/telas menores (mantém visual original)
 // @author       Luiz
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @grant        none
@@ -86,13 +86,13 @@
         let lastPos = { left:null, top:null };
         let firstMax = true;
 
+        // 🔹 Recupera posição salva
         const savedLeft = localStorage.getItem("copylp_left");
         const savedTop = localStorage.getItem("copylp_top");
         if(savedLeft && savedTop){ lastPos.left = savedLeft; lastPos.top = savedTop; }
 
-        // 🔹 Função de drag livre
         function sDrag(x,y,el){dragging=true;moved=false;const r=el.getBoundingClientRect();sx=x;sy=y;il=r.left;it=r.top;el.style.transition='none'}
-        function mDrag(x,y,el){if(!dragging)return;const dx=x-sx,dy=y-sy;moved=true;el.style.left=(il+dx)+'px';el.style.top=(it+dy)+'px';el.style.position='fixed';el.style.transform='none'}
+        function mDrag(x,y,el){if(!dragging)return;const dx=x-sx,dy=y-sy;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;el.style.left=(il+dx)+'px';el.style.top=(it+dy)+'px';el.style.position='fixed';el.style.transform='none'}
         function eDrag(el){dragging=false;el.style.transition='';if(el===dragEl){lastPos.left=el.style.left; lastPos.top=el.style.top;localStorage.setItem("copylp_left", lastPos.left); localStorage.setItem("copylp_top", lastPos.top);}}
 
         ['mousedown','touchstart'].forEach(e=>dragEl.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;sDrag(p.clientX,p.clientY,dragEl)}));
@@ -119,6 +119,8 @@
         }
 
         minEl.addEventListener('click',minimizePanel);
+
+        // inicia minimizado
         dragEl.style.display='none';
         restoreEl.style.display='flex';
     });
