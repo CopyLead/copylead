@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CopyLP Painel Adaptativo
+// @name         CopyLP Painel (Posição salva + Adaptativo + QRCode)
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  Painel CopyLP adaptativo — centraliza na 1ª vez, salva posição, funciona em qualquer dispositivo (mouse e toque)
+// @version      1.7
+// @description  Painel CopyLP adaptativo, com posição salva e área de QR Code (mantém aparência original)
 // @author       Luiz Claudio
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=educacao.sp.gov.br
@@ -10,210 +10,179 @@
 // ==/UserScript==
 
 (function () {
-  'use strict';
+    'use strict';
 
-  if (!location.hostname.includes("saladofuturo.educacao.sp.gov.br")) return;
-  if (document.getElementById('copylp_container')) return;
+    if (!location.hostname.includes("saladofuturo.educacao.sp.gov.br")) return;
+    if (document.getElementById('hw_container')) return;
 
-  function onReady(fn) {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
-    else fn();
-  }
+    function onReady(fn) {
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+        else fn();
+    }
 
-  onReady(() => {
-    const html = `
-    <style>
-      :root {
-        --bg: #fff;
-        --text: #000;
-        --muted: #555;
-        --r: 10px;
-        font-family: Arial, sans-serif;
-      }
-
-      #copylp_container {
-        position: fixed;
-        inset: 0;
-        z-index: 999999;
-        pointer-events: none;
-      }
-
-      #copylp_panel {
-        position: fixed;
-        width: 420px;
-        max-width: 90vw;
-        background: var(--bg);
-        border: 1px solid #ccc;
-        border-radius: var(--r);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-        padding: 16px;
-        color: var(--text);
-        pointer-events: auto;
-        box-sizing: border-box;
-        touch-action: none;
-      }
-
-      #copylp_panel h2 {
-        margin: 0 0 8px 0;
-        font-size: 18px;
-      }
-
-      #copylp_panel p {
-        margin: 4px 0;
-        color: var(--muted);
-        font-size: 14px;
-      }
-
-      #copylp_minimize {
-        position: absolute;
-        top: 6px;
-        right: 10px;
-        font-size: 22px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: var(--text);
-      }
-
-      #copylp_restore {
-        display: none;
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.75);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 99999999;
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-      }
-
-      #copylp_restore img {
-        width: 28px;
-        height: 28px;
-        filter: invert(1);
-        pointer-events: none;
-      }
-
-      @media (max-width: 600px) {
-        #copylp_panel {
-          width: 95vw;
-          padding: 12px;
-          font-size: 14px;
+    onReady(function () {
+        const html = `
+        <style>
+        :root{--bg:#fff;--card:#fff;--text:#000;--muted:#666;--r:10px;font-family:Arial,sans-serif}
+        .hw_container{width:100%;height:100%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999999;user-select:none}
+        .hw_wrap{width:420px;max-width:95vw;display:flex;align-items:center;justify-content:center;position:absolute;cursor:move;touch-action:none;pointer-events:auto;box-sizing:border-box}
+        .hw_card{width:100%;background:var(--card);border:1px solid #ccc;border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px;color:var(--text);position:relative;box-sizing:border-box}
+        .hw_title{display:flex;align-items:center;font-size:14px;color:var(--text)}
+        .hw_title span{margin-right:14px}
+        .hw_statusline{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+        .hw_btnstyle{padding:8px 12px;border:1px solid #000;background:transparent;color:#000;border-radius:6px;cursor:pointer;font-size:14px}
+        .hw_k{background:#f2f2f2;padding:4px 8px;border-radius:6px;font-family:monospace;font-size:13px;color:#000}
+        .hw_qr{width:100px;height:100px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);background:#fff;margin-bottom:10px}
+        #hw_restore{position:fixed;bottom:20px;right:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;z-index:99999999;touch-action:none;cursor:move;}
+        #hw_restore img{width:100%;height:100%;object-fit:contain;user-select:none;pointer-events:none}
+        #hw_toast{position:fixed;bottom:26px;right:72px;background:rgba(0,0,0,0.85);color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,0.25);z-index:99999999;opacity:0;transform:translateY(6px);transition:opacity 210ms ease, transform 210ms ease;pointer-events:none;display:none;white-space:nowrap;}
+        #hw_email{padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;width:100%;box-sizing:border-box}
+        #hw_min{position:absolute;top:8px;right:8px;border:none;background:transparent;color:#000;font-size:18px;cursor:pointer;line-height:1}
+        @media(max-width:600px){
+          .hw_wrap{width:90%;left:5%!important;transform:none!important;}
+          .hw_card{padding:14px;gap:12px;}
         }
-        #copylp_panel h2 {
-          font-size: 16px;
+        </style>
+
+        <div class="hw_container" id="hw_container">
+          <div class="hw_wrap" id="hw_drag">
+            <div class="hw_card" id="hw_card" tabindex="0">
+              <button id="hw_min" title="Minimizar">×</button>
+              <div class="hw_title">
+                <div><span>CopyLP</span><span>Mensalidade: R$10,00</span><span>Expira: —</span></div>
+              </div>
+              <div class="hw_statusline">
+                <div><strong>Status:</strong> <span id="hw_status">Não ativado</span></div>
+                <div><strong>Chave:</strong> <span class="hw_k" id="hw_k">—</span></div>
+              </div>
+
+              <!-- 🔹 Espaço reservado para o QR Code real -->
+              <div class="hw_qr" id="hw_qr">
+                <span>QR Code Aqui</span>
+              </div>
+
+              <input type="email" id="hw_email" placeholder="Digite seu e-mail"/>
+              <button class="hw_btnstyle" id="hw_btn">Gerar chave</button>
+              <div class="small">Após pagamento você receberá a chave por e-mail.</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="hw_restore" title="Restaurar painel" draggable="false">
+          <img src="https://camo.githubusercontent.com/557ad68f0a36c0067b8c94210fcdf3000374b7378ddad748478d4a0dc854da21/68747470733a2f2f692e696d6775722e636f6d2f6c336c584839302e706e67" alt="Ícone"/>
+        </div>
+        `;
+
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        document.body.appendChild(container);
+
+        const dragEl = document.getElementById('hw_drag');
+        const restoreEl = document.getElementById('hw_restore');
+        const btnEl = document.getElementById('hw_btn');
+        const keyEl = document.getElementById('hw_k');
+        const statusEl = document.getElementById('hw_status');
+        const pageEl = document.getElementById('hw_container');
+        const minEl = document.getElementById('hw_min');
+        const emailEl = document.getElementById('hw_email');
+
+        let dragging = false, sx, sy, il, it;
+        let moved = false;
+        let firstMax = !localStorage.getItem("copylp_pos_saved");
+
+        // 🔹 Recupera posição salva
+        let lastLeft = localStorage.getItem("copylp_left");
+        let lastTop = localStorage.getItem("copylp_top");
+
+        if (lastLeft && lastTop) {
+            dragEl.style.left = lastLeft;
+            dragEl.style.top = lastTop;
+            dragEl.style.position = 'fixed';
         }
-        #copylp_restore {
-          width: 42px;
-          height: 42px;
-          bottom: 12px;
-          right: 12px;
+
+        function sDrag(x, y, el) {
+            dragging = true;
+            moved = false;
+            const r = el.getBoundingClientRect();
+            sx = x;
+            sy = y;
+            il = r.left;
+            it = r.top;
+            el.style.transition = 'none';
         }
-      }
-    </style>
 
-    <div id="copylp_container">
-      <div id="copylp_panel">
-        <button id="copylp_minimize">×</button>
-        <h2>CopyLP Painel</h2>
-        <p><strong>Status:</strong> Não ativado</p>
-        <p><strong>Mensalidade:</strong> R$10,00</p>
-        <p><strong>Expira:</strong> —</p>
-        <input id="copylp_email" type="email" placeholder="Digite seu e-mail" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin:8px 0;">
-        <button id="copylp_gerar" style="width:100%;padding:8px;border:1px solid #000;border-radius:6px;background:transparent;cursor:pointer;">Gerar Chave</button>
-      </div>
-    </div>
+        function mDrag(x, y, el) {
+            if (!dragging) return;
+            const dx = x - sx, dy = y - sy;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+            el.style.left = (il + dx) + 'px';
+            el.style.top = (it + dy) + 'px';
+            el.style.position = 'fixed';
+            el.style.transform = 'none';
+        }
 
-    <div id="copylp_restore">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="Restaurar"/>
-    </div>
-    `;
+        function eDrag(el) {
+            if (!dragging) return;
+            dragging = false;
+            el.style.transition = '';
+            // 🔹 Salva posição
+            localStorage.setItem("copylp_left", el.style.left);
+            localStorage.setItem("copylp_top", el.style.top);
+            localStorage.setItem("copylp_pos_saved", "true");
+        }
 
-    document.body.insertAdjacentHTML('beforeend', html);
+        ['mousedown','touchstart'].forEach(e => dragEl.addEventListener(e, ev => {
+            const p = ev.touches ? ev.touches[0] : ev;
+            sDrag(p.clientX, p.clientY, dragEl);
+        }));
 
-    const panel = document.getElementById('copylp_panel');
-    const restore = document.getElementById('copylp_restore');
-    const minimize = document.getElementById('copylp_minimize');
+        ['mousemove','touchmove'].forEach(e => window.addEventListener(e, ev => {
+            const p = ev.touches ? ev.touches[0] : ev;
+            mDrag(p.clientX, p.clientY, dragEl);
+        }));
 
-    // 🔹 Recuperar posição salva
-    const savedLeft = localStorage.getItem("copylp_left");
-    const savedTop = localStorage.getItem("copylp_top");
+        ['mouseup','touchend'].forEach(e => window.addEventListener(e, () => eDrag(dragEl)));
 
-    if (savedLeft && savedTop) {
-      panel.style.left = savedLeft;
-      panel.style.top = savedTop;
-    } else {
-      // Centraliza na 1ª vez
-      const left = (window.innerWidth - panel.offsetWidth) / 2;
-      const top = (window.innerHeight - panel.offsetHeight) / 2;
-      panel.style.left = left + "px";
-      panel.style.top = top + "px";
-    }
+        restoreEl.addEventListener('click', () => restorePanel());
 
-    // 🔹 Movimentação (mouse e toque)
-    let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+        function minimizePanel() {
+            pageEl.style.pointerEvents = 'none';
+            dragEl.style.display = 'none';
+            restoreEl.style.display = 'flex';
+        }
 
-    function startDrag(x, y) {
-      dragging = true;
-      startX = x;
-      startY = y;
-      startLeft = parseFloat(panel.style.left || 0);
-      startTop = parseFloat(panel.style.top || 0);
-      panel.style.transition = "none";
-    }
+        function restorePanel() {
+            pageEl.style.pointerEvents = 'auto';
+            dragEl.style.display = 'flex';
+            restoreEl.style.display = 'none';
 
-    function moveDrag(x, y) {
-      if (!dragging) return;
-      const dx = x - startX;
-      const dy = y - startY;
-      panel.style.left = startLeft + dx + "px";
-      panel.style.top = startTop + dy + "px";
-    }
+            if (firstMax) {
+                dragEl.style.position = 'fixed';
+                dragEl.style.left = '50%';
+                dragEl.style.top = '50%';
+                dragEl.style.transform = 'translate(-50%,-50%)';
+                firstMax = false;
+            } else if (lastLeft && lastTop) {
+                dragEl.style.position = 'fixed';
+                dragEl.style.left = lastLeft;
+                dragEl.style.top = lastTop;
+                dragEl.style.transform = 'none';
+            }
+        }
 
-    function endDrag() {
-      dragging = false;
-      panel.style.transition = "";
-      // Salvar posição
-      localStorage.setItem("copylp_left", panel.style.left);
-      localStorage.setItem("copylp_top", panel.style.top);
-    }
+        minEl.addEventListener('click', minimizePanel);
 
-    panel.addEventListener("mousedown", e => startDrag(e.clientX, e.clientY));
-    window.addEventListener("mousemove", e => moveDrag(e.clientX, e.clientY));
-    window.addEventListener("mouseup", endDrag);
+        // 🔹 Adapta se a tela for redimensionada
+        window.addEventListener('resize', () => {
+            const rect = dragEl.getBoundingClientRect();
+            if (rect.right > window.innerWidth)
+                dragEl.style.left = (window.innerWidth - rect.width - 10) + 'px';
+            if (rect.bottom > window.innerHeight)
+                dragEl.style.top = (window.innerHeight - rect.height - 10) + 'px';
+        });
 
-    panel.addEventListener("touchstart", e => startDrag(e.touches[0].clientX, e.touches[0].clientY));
-    window.addEventListener("touchmove", e => moveDrag(e.touches[0].clientX, e.touches[0].clientY));
-    window.addEventListener("touchend", endDrag);
-
-    // 🔹 Minimizar / Restaurar
-    minimize.addEventListener("click", () => {
-      panel.style.display = "none";
-      restore.style.display = "flex";
+        // 🔹 Inicializa minimizado
+        dragEl.style.display = 'none';
+        restoreEl.style.display = 'flex';
     });
-
-    restore.addEventListener("click", () => {
-      panel.style.display = "block";
-      restore.style.display = "none";
-    });
-
-    // 🔹 Adaptação ao redimensionar
-    window.addEventListener("resize", () => {
-      const left = parseFloat(panel.style.left);
-      const top = parseFloat(panel.style.top);
-
-      // Garante que não saia da tela
-      if (left + panel.offsetWidth > window.innerWidth) {
-        panel.style.left = (window.innerWidth - panel.offsetWidth - 10) + "px";
-      }
-      if (top + panel.offsetHeight > window.innerHeight) {
-        panel.style.top = (window.innerHeight - panel.offsetHeight - 10) + "px";
-      }
-    });
-  });
 })();
