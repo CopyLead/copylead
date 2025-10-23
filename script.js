@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CopyLP Painel v1.7 Mobile Free Drag
+// @name         CopyLP Painel v1.7 Mobile Free Move
 // @namespace    http://tampermonkey.net/
-// @version      1.73
-// @description  CopyLP v1.7 com painel maximizado movel livremente, sem limites, mobile/PC, mantendo visual original
+// @version      1.72
+// @description  Versão 1.7 do CopyLP com painel maximizado movel livremente, sem limites de borda, mobile/PC, mantendo visual original
 // @author       Luiz
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @grant        none
@@ -90,38 +90,10 @@
         const savedTop = localStorage.getItem("copylp_top");
         if(savedLeft && savedTop){ lastPos.left = savedLeft; lastPos.top = savedTop; }
 
-        // 🔹 Drag totalmente livre
-        function sDrag(x,y,el){
-            dragging = true;
-            moved = false;
-            const r = el.getBoundingClientRect();
-            sx = x; sy = y;
-            il = r.left; it = r.top;
-            el.style.transition = 'none';
-        }
-
-        function mDrag(x,y,el){
-            if(!dragging) return;
-            const dx = x - sx;
-            const dy = y - sy;
-            moved = true;
-            // posição livre
-            el.style.left = (il + dx) + 'px';
-            el.style.top  = (it + dy) + 'px';
-            el.style.position = 'fixed';
-            el.style.transform = 'none';
-        }
-
-        function eDrag(el){
-            dragging = false;
-            el.style.transition = '';
-            if(el === dragEl){
-                lastPos.left = el.style.left;
-                lastPos.top  = el.style.top;
-                localStorage.setItem("copylp_left", lastPos.left);
-                localStorage.setItem("copylp_top", lastPos.top);
-            }
-        }
+        // 🔹 Função de drag livre
+        function sDrag(x,y,el){dragging=true;moved=false;const r=el.getBoundingClientRect();sx=x;sy=y;il=r.left;it=r.top;el.style.transition='none'}
+        function mDrag(x,y,el){if(!dragging)return;const dx=x-sx,dy=y-sy;moved=true;el.style.left=(il+dx)+'px';el.style.top=(it+dy)+'px';el.style.position='fixed';el.style.transform='none'}
+        function eDrag(el){dragging=false;el.style.transition='';if(el===dragEl){lastPos.left=el.style.left; lastPos.top=el.style.top;localStorage.setItem("copylp_left", lastPos.left); localStorage.setItem("copylp_top", lastPos.top);}}
 
         ['mousedown','touchstart'].forEach(e=>dragEl.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;sDrag(p.clientX,p.clientY,dragEl)}));
         ['mousemove','touchmove'].forEach(e=>window.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;mDrag(p.clientX,p.clientY,dragEl)}));
@@ -129,33 +101,24 @@
 
         restoreEl.addEventListener('click',()=>{if(!moved) restorePanel()});
 
-        function minimizePanel(){
-            pageEl.style.pointerEvents='none';
-            dragEl.style.display='none';
-            restoreEl.style.display='flex';
-        }
-
+        function minimizePanel(){pageEl.style.pointerEvents='none';dragEl.style.display='none';restoreEl.style.display='flex';}
         function restorePanel(){
-            pageEl.style.pointerEvents='auto';
-            dragEl.style.display='flex';
-            restoreEl.style.display='none';
+            pageEl.style.pointerEvents='auto';dragEl.style.display='flex';restoreEl.style.display='none';
             if(firstMax){
                 dragEl.style.position='fixed';
                 dragEl.style.left='50%';
                 dragEl.style.top='50%';
                 dragEl.style.transform='translate(-50%,-50%)';
                 firstMax=false;
-            } else if(lastPos.left!==null && lastPos.top!==null){
+            }else if(lastPos.left!==null && lastPos.top!==null){
                 dragEl.style.position='fixed';
-                dragEl.style.left = lastPos.left;
-                dragEl.style.top = lastPos.top;
-                dragEl.style.transform = 'none';
+                dragEl.style.left=lastPos.left;
+                dragEl.style.top=lastPos.top;
+                dragEl.style.transform='none';
             }
         }
 
         minEl.addEventListener('click',minimizePanel);
-
-        // inicia minimizado
         dragEl.style.display='none';
         restoreEl.style.display='flex';
     });
