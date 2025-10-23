@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CopyLP Painel Adaptativo + QR (fix móvel)
+// @name         CopyLP Painel v1.7 Mobile Fix
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  Painel CopyLP adaptativo, movel em qualquer dispositivo e com espaço para QR Code no modo maximizado (sem alterar o design do mini painel)
+// @version      1.71
+// @description  Versão 1.7 do CopyLP com suporte para mover painel maximizado em Android/telas menores (mantém visual original)
 // @author       Luiz
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @grant        none
@@ -11,128 +11,117 @@
 (function () {
     'use strict';
 
-    const painel = document.createElement("div");
-    painel.id = "copylp-painel";
-    painel.style.position = "fixed";
-    painel.style.zIndex = "9999";
-    painel.style.background = "rgba(0,0,0,0.85)";
-    painel.style.color = "#fff";
-    painel.style.padding = "12px 20px";
-    painel.style.borderRadius = "14px";
-    painel.style.boxShadow = "0 0 15px rgba(255,255,255,0.4)";
-    painel.style.backdropFilter = "blur(4px)";
-    painel.style.userSelect = "none";
-    painel.style.cursor = "move";
-    painel.style.transition = "opacity 0.3s ease, transform 0.2s ease";
-    painel.style.maxWidth = "90vw";
-    painel.style.maxHeight = "90vh";
-    painel.style.overflow = "auto";
+    if (!location.hostname.includes("saladofuturo.educacao.sp.gov.br")) return;
+    if (document.getElementById('hw_container')) return;
 
-    painel.innerHTML = `
-        <div id="painelConteudo">
-            <b style="font-size: 18px;">Painel CopyLP</b><br>
-            <small style="opacity:0.8;">Movimente e minimize</small>
-
-            <div id="qrArea" style="margin-top:15px; display:none; text-align:center;">
-                <h4 style="margin-bottom:6px;">QR Code</h4>
-                <div id="qrBox" style="width:150px; height:150px; border:2px dashed #fff; border-radius:10px; display:inline-block; opacity:0.5; font-size:12px; line-height:150px;">
-                    Área para QR
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(painel);
-
-    // Restaura posição salva
-    const savedX = localStorage.getItem("copylp_x");
-    const savedY = localStorage.getItem("copylp_y");
-
-    if (savedX && savedY) {
-        painel.style.left = `${savedX}px`;
-        painel.style.top = `${savedY}px`;
-    } else {
-        const centerX = (window.innerWidth - painel.offsetWidth) / 2;
-        const centerY = (window.innerHeight - painel.offsetHeight) / 2;
-        painel.style.left = `${centerX}px`;
-        painel.style.top = `${centerY}px`;
+    function onReady(fn) {
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+        else fn();
     }
 
-    // Torna o painel movel (PC e celular)
-    let isDragging = false, offsetX = 0, offsetY = 0;
-
-    const startDrag = (x, y) => {
-        isDragging = true;
-        offsetX = x - painel.offsetLeft;
-        offsetY = y - painel.offsetTop;
-        painel.style.transition = "none";
-    };
-
-    const moveDrag = (x, y) => {
-        if (!isDragging) return;
-
-        const maxX = window.innerWidth - painel.offsetWidth;
-        const maxY = window.innerHeight - painel.offsetHeight;
-
-        const newX = Math.min(maxX, Math.max(0, x - offsetX));
-        const newY = Math.min(maxY, Math.max(0, y - offsetY));
-
-        painel.style.left = `${newX}px`;
-        painel.style.top = `${newY}px`;
-    };
-
-    const endDrag = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        painel.style.transition = "opacity 0.3s ease, transform 0.2s ease";
-        localStorage.setItem("copylp_x", parseInt(painel.style.left));
-        localStorage.setItem("copylp_y", parseInt(painel.style.top));
-    };
-
-    // Eventos de mouse
-    painel.addEventListener("mousedown", (e) => startDrag(e.clientX, e.clientY));
-    document.addEventListener("mousemove", (e) => moveDrag(e.clientX, e.clientY));
-    document.addEventListener("mouseup", endDrag);
-
-    // Eventos de toque (mobile/tablet)
-    painel.addEventListener("touchstart", (e) => {
-        const t = e.touches[0];
-        startDrag(t.clientX, t.clientY);
-    });
-    document.addEventListener("touchmove", (e) => {
-        const t = e.touches[0];
-        moveDrag(t.clientX, t.clientY);
-    }, { passive: false });
-    document.addEventListener("touchend", endDrag);
-
-    // Botão de minimizar (visual original)
-    const btnMin = document.createElement("button");
-    btnMin.textContent = "—";
-    btnMin.style.position = "absolute";
-    btnMin.style.top = "5px";
-    btnMin.style.right = "8px";
-    btnMin.style.background = "transparent";
-    btnMin.style.color = "#fff";
-    btnMin.style.border = "none";
-    btnMin.style.fontSize = "18px";
-    btnMin.style.cursor = "pointer";
-    btnMin.style.textShadow = "0 0 6px white";
-    painel.appendChild(btnMin);
-
-    let minimized = false;
-    btnMin.addEventListener("click", () => {
-        minimized = !minimized;
-        painel.querySelector("#painelConteudo").style.display = minimized ? "none" : "block";
-        painel.style.width = minimized ? "auto" : "fit-content";
-        painel.style.height = minimized ? "auto" : "fit-content";
-        btnMin.textContent = minimized ? "⬜" : "—";
-
-        if (!minimized) {
-            document.getElementById("qrArea").style.display = "block";
+    onReady(function () {
+        const html = ` 
+        <style>
+        :root{--bg:#fff;--card:#fff;--text:#000;--muted:#666;--r:10px;font-family:Arial,sans-serif}
+        .hw_container{width:100%;height:100%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999999;user-select:none}
+        .hw_wrap{width:420px;max-width:95vw;display:flex;align-items:center;justify-content:center;position:absolute;cursor:move;touch-action:none;pointer-events:auto;box-sizing:border-box}
+        .hw_card{width:100%;background:var(--card);border:1px solid #ccc;border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px;color:var(--text);position:relative;box-sizing:border-box}
+        .hw_title{display:flex;align-items:center;font-size:14px;color:var(--text)}
+        .hw_title span{margin-right:14px}
+        .hw_statusline{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+        .hw_btnstyle{padding:8px 12px;border:1px solid #000;background:transparent;color:#000;border-radius:6px;cursor:pointer;font-size:14px}
+        .hw_k{background:#f2f2f2;padding:4px 8px;border-radius:6px;font-family:monospace;font-size:13px;color:#000}
+        .hw_qr{width:100px;height:100px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:11px;color:#666;background:#fff;margin-bottom:10px}
+        #hw_restore{position:fixed;bottom:20px;right:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;z-index:99999999;touch-action:none;cursor:move;}
+        #hw_restore img{width:100%;height:100%;object-fit:contain;user-select:none;pointer-events:none}
+        #hw_toast{position:fixed;bottom:26px;right:72px;background:rgba(0,0,0,0.85);color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,0.25);z-index:99999999;opacity:0;transform:translateY(6px);transition:opacity 210ms ease, transform 210ms ease;pointer-events:none;display:none;white-space:nowrap;}
+        #hw_email{padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;width:100%;box-sizing:border-box}
+        #hw_min{position:absolute;top:8px;right:8px;border:none;background:transparent;color:#000;font-size:18px;cursor:pointer;line-height:1}
+        @media(max-width:600px){
+          .hw_wrap{width:90%;left:5%!important;transform:none!important;}
+          .hw_card{padding:14px;gap:12px;}
         }
+        </style>
+
+        <div class="hw_container" id="hw_container">
+          <div class="hw_wrap" id="hw_drag">
+            <div class="hw_card" id="hw_card" tabindex="0">
+              <button id="hw_min" title="Minimizar">×</button>
+              <div class="hw_title">
+                <div><span>CopyLP</span><span>Mensalidade: R$10,00</span><span>Expira: —</span></div>
+              </div>
+              <div class="hw_statusline">
+                <div><strong>Status:</strong> <span id="hw_status">Não ativado</span></div>
+                <div><strong>Chave:</strong> <span class="hw_k" id="hw_k">—</span></div>
+              </div>
+
+              <div class="hw_qr" id="hw_qr">QR</div>
+
+              <input type="email" id="hw_email" placeholder="Digite seu e-mail"/>
+              <button class="hw_btnstyle" id="hw_btn">Gerar chave</button>
+              <div class="small">Após pagamento você receberá a chave por e-mail.</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="hw_restore" title="Restaurar painel" draggable="false">
+          <img src="https://camo.githubusercontent.com/557ad68f0a36c0067b8c94210fcdf3000374b7378ddad748478d4a0dc854da21/68747470733a2f2f692e696d6775722e636f6d2f6c336c584839302e706e67" alt="Ícone"/>
+        </div>
+        `;
+
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        document.body.appendChild(container);
+
+        const dragEl = document.getElementById('hw_drag');
+        const restoreEl = document.getElementById('hw_restore');
+        const btnEl = document.getElementById('hw_btn');
+        const keyEl = document.getElementById('hw_k');
+        const statusEl = document.getElementById('hw_status');
+        const pageEl = document.getElementById('hw_container');
+        const minEl = document.getElementById('hw_min');
+        const emailEl = document.getElementById('hw_email');
+
+        let dragging=false, sx, sy, il, it, moved=false;
+        let lastPos = { left:null, top:null };
+        let firstMax = true;
+
+        // 🔹 Recupera posição salva
+        const savedLeft = localStorage.getItem("copylp_left");
+        const savedTop = localStorage.getItem("copylp_top");
+        if(savedLeft && savedTop){ lastPos.left = savedLeft; lastPos.top = savedTop; }
+
+        function sDrag(x,y,el){dragging=true;moved=false;const r=el.getBoundingClientRect();sx=x;sy=y;il=r.left;it=r.top;el.style.transition='none'}
+        function mDrag(x,y,el){if(!dragging)return;const dx=x-sx,dy=y-sy;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;el.style.left=(il+dx)+'px';el.style.top=(it+dy)+'px';el.style.position='fixed';el.style.transform='none'}
+        function eDrag(el){dragging=false;el.style.transition='';if(el===dragEl){lastPos.left=el.style.left; lastPos.top=el.style.top;localStorage.setItem("copylp_left", lastPos.left); localStorage.setItem("copylp_top", lastPos.top);}}
+
+        ['mousedown','touchstart'].forEach(e=>dragEl.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;sDrag(p.clientX,p.clientY,dragEl)}));
+        ['mousemove','touchmove'].forEach(e=>window.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;mDrag(p.clientX,p.clientY,dragEl)}));
+        ['mouseup','touchend'].forEach(e=>window.addEventListener(e,()=>eDrag(dragEl)));
+
+        restoreEl.addEventListener('click',()=>{if(!moved) restorePanel()});
+
+        function minimizePanel(){pageEl.style.pointerEvents='none';dragEl.style.display='none';restoreEl.style.display='flex';}
+        function restorePanel(){
+            pageEl.style.pointerEvents='auto';dragEl.style.display='flex';restoreEl.style.display='none';
+            if(firstMax){
+                dragEl.style.position='fixed';
+                dragEl.style.left='50%';
+                dragEl.style.top='50%';
+                dragEl.style.transform='translate(-50%,-50%)';
+                firstMax=false;
+            }else if(lastPos.left!==null && lastPos.top!==null){
+                dragEl.style.position='fixed';
+                dragEl.style.left=lastPos.left;
+                dragEl.style.top=lastPos.top;
+                dragEl.style.transform='none';
+            }
+        }
+
+        minEl.addEventListener('click',minimizePanel);
+
+        // inicia minimizado
+        dragEl.style.display='none';
+        restoreEl.style.display='flex';
     });
-
-    // Mostra QR code por padrão apenas no modo maximizado
-    document.getElementById("qrArea").style.display = "block";
-
 })();
