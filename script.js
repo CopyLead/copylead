@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CopyLP Painel v1.7 Mobile Fix
+// @name         CopyLP Painel v1.7 Mobile Fix + Ativado
 // @namespace    http://tampermonkey.net/
-// @version      1.71
-// @description  Versão 1.7 do CopyLP com suporte para mover painel maximizado em Android/telas menores (mantém visual original)
+// @version      1.72
+// @description  Versão 1.7 do CopyLP com suporte para mover painel maximizado em Android/telas menores (mantém visual original) e barra "Script ativado"
 // @author       Luiz
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @grant        none
@@ -41,6 +41,7 @@
           .hw_wrap{width:90%;left:5%!important;transform:none!important;}
           .hw_card{padding:14px;gap:12px;}
         }
+        #hw_activated_bar{position:fixed;top:0;left:50%;transform:translateX(-50%);background:limegreen;color:#000;padding:4px 12px;font-size:12px;font-family:Arial,sans-serif;border-bottom-left-radius:6px;border-bottom-right-radius:6px;z-index:99999999;display:flex;align-items:center;justify-content:center;pointer-events:none;}
         </style>
 
         <div class="hw_container" id="hw_container">
@@ -67,6 +68,8 @@
         <div id="hw_restore" title="Restaurar painel" draggable="false">
           <img src="https://camo.githubusercontent.com/557ad68f0a36c0067b8c94210fcdf3000374b7378ddad748478d4a0dc854da21/68747470733a2f2f692e696d6775722e636f6d2f6c336c584839302e706e67" alt="Ícone"/>
         </div>
+
+        <div id="hw_activated_bar">CopyLP: Script ativado</div>
         `;
 
         const container = document.createElement('div');
@@ -81,6 +84,7 @@
         const pageEl = document.getElementById('hw_container');
         const minEl = document.getElementById('hw_min');
         const emailEl = document.getElementById('hw_email');
+        const activatedBar = document.getElementById('hw_activated_bar');
 
         let dragging=false, sx, sy, il, it, moved=false;
         let lastPos = { left:null, top:null };
@@ -120,8 +124,20 @@
 
         minEl.addEventListener('click',minimizePanel);
 
+        let activated=false;
+        btnEl.addEventListener('click',()=>{
+          const em=emailEl.value.trim();
+          if(!em){emailEl.style.border='1px solid red'; setTimeout(()=>emailEl.style.border='1px solid #ccc',1500); return;}
+          activated=!activated;
+          statusEl.textContent=activated?'Ativado':'Não ativado';
+          keyEl.textContent=activated?'CHAVE-12345-XYZ':'—';
+          activatedBar.style.display = activated ? 'flex' : 'none';
+          if(activated){ showToast('Script Ativado',5000); }
+        });
+
         // inicia minimizado
         dragEl.style.display='none';
         restoreEl.style.display='flex';
+        activatedBar.style.display='none';
     });
 })();
