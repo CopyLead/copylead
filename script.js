@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         CopyLP Painel
 // @namespace    http://tampermonkey.net/
-// @version      1.3
-// @description  Painel CopyLP - inicia minimizado, centraliza na 1ª maximização, toast inicial ajustado com neon
+// @version      1.4
+// @description  Painel CopyLP - salva posição, inicia minimizado, centraliza na 1ª maximização, toast inicial com neon
 // @author       Luiz Claudio
 // @match        https://saladofuturo.educacao.sp.gov.br/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=educacao.sp.gov.br
@@ -12,9 +12,7 @@
 (function () {
     'use strict';
 
-    // ✅ Garante que o script só funcione no domínio correto
     if (!location.hostname.includes("saladofuturo.educacao.sp.gov.br")) return;
-
     if (document.getElementById('hw_container')) return;
 
     function onReady(fn) {
@@ -81,12 +79,18 @@
         const emailEl = document.getElementById('hw_email');
 
         let dragging=false, sx, sy, il, it, moved=false;
-        let lastPos = { left:null, top:null };
         let firstMax = true;
+
+        // ✅ Recuperar posição salva do painel
+        const savedLeft = localStorage.getItem("copylp_left");
+        const savedTop = localStorage.getItem("copylp_top");
 
         function sDrag(x,y,el){dragging=true;moved=false;const r=el.getBoundingClientRect();sx=x;sy=y;il=r.left;it=r.top;el.style.transition='none'}
         function mDrag(x,y,el){if(!dragging)return;const dx=x-sx,dy=y-sy;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;el.style.left=(il+dx)+'px';el.style.top=(it+dy)+'px';el.style.position='fixed';el.style.transform='none'}
-        function eDrag(el){dragging=false;el.style.transition='';if(el===dragEl){lastPos.left=el.style.left; lastPos.top=el.style.top;}}
+        function eDrag(el){dragging=false;el.style.transition='';if(moved){ // ✅ salva posição quando move
+            localStorage.setItem("copylp_left", parseInt(el.style.left));
+            localStorage.setItem("copylp_top", parseInt(el.style.top));
+        }}
 
         ['mousedown','touchstart'].forEach(e=>dragEl.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;sDrag(p.clientX,p.clientY,dragEl)}));
         ['mousemove','touchmove'].forEach(e=>window.addEventListener(e,ev=>{const p=ev.touches?ev.touches[0]:ev;mDrag(p.clientX,p.clientY,dragEl)}));
@@ -95,100 +99,112 @@
         restoreEl.addEventListener('click',()=>{if(!moved) restorePanel()});
 
         function minimizePanel(){
-          pageEl.style.pointerEvents='none';
-          dragEl.style.display='none';
-          restoreEl.style.display='flex';
+            pageEl.style.pointerEvents='none';
+            dragEl.style.display='none';
+            restoreEl.style.display='flex';
         }
 
         function restorePanel(){
-          pageEl.style.pointerEvents='auto';
-          dragEl.style.display='flex';
-          restoreEl.style.display='none';
-          if(firstMax){
-            dragEl.style.position='fixed';
-            dragEl.style.left='50%';
-            dragEl.style.top='50%';
-            dragEl.style.transform='translate(-50%,-50%)';
-            firstMax=false;
-          } else if(lastPos.left!==null && lastPos.top!==null){
-            dragEl.style.position='fixed';
-            dragEl.style.left=lastPos.left;
-            dragEl.style.top=lastPos.top;
-            dragEl.style.transform='none';
-          }
+            pageEl.style.pointerEvents='auto';
+            dragEl.style.display='flex';
+            restoreEl.style.display='none';
+
+            // ✅ Na primeira vez centraliza
+            if(firstMax){
+                if(savedLeft && savedTop){
+                    dragEl.style.left = savedLeft + "px";
+                    dragEl.style.top = savedTop + "px";
+                    dragEl.style.position = 'fixed';
+                    dragEl.style.transform = 'none';
+                } else {
+                    dragEl.style.position='fixed';
+                    dragEl.style.left='50%';
+                    dragEl.style.top='50%';
+                    dragEl.style.transform='translate(-50%,-50%)';
+                }
+                firstMax=false;
+            } else {
+                // ✅ Depois sempre volta pra posição salva
+                if(savedLeft && savedTop){
+                    dragEl.style.left = savedLeft + "px";
+                    dragEl.style.top = savedTop + "px";
+                    dragEl.style.position='fixed';
+                    dragEl.style.transform='none';
+                }
+            }
         }
 
         minEl.addEventListener('click',minimizePanel);
 
         let activated=false;
         btnEl.addEventListener('click',()=>{
-          const em=emailEl.value.trim();
-          if(!em){emailEl.style.border='1px solid red'; setTimeout(()=>emailEl.style.border='1px solid #ccc',1500); return;}
-          activated=!activated;
-          statusEl.textContent=activated?'Ativado':'Não ativado';
-          keyEl.textContent=activated?'CHAVE-12345-XYZ':'—';
-          if(activated){ showToast('Script Ativado',5000); }
+            const em=emailEl.value.trim();
+            if(!em){emailEl.style.border='1px solid red'; setTimeout(()=>emailEl.style.border='1px solid #ccc',1500); return;}
+            activated=!activated;
+            statusEl.textContent=activated?'Ativado':'Não ativado';
+            keyEl.textContent=activated?'CHAVE-12345-XYZ':'—';
+            if(activated){ showToast('Script Ativado',5000); }
         });
 
         window.addEventListener('keydown',(e)=>{
-          if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable)return;
-          if(e.code==='Space'){
-            e.preventDefault();
-            if(dragEl.style.display==='none') restorePanel();
-            else minimizePanel();
-          }
+            if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable)return;
+            if(e.code==='Space'){
+                e.preventDefault();
+                if(dragEl.style.display==='none') restorePanel();
+                else minimizePanel();
+            }
         });
 
         let toastTimer=null;
         function showToast(text,ms){
-          let toastEl = document.getElementById('hw_toast');
-          toastEl.textContent=text;
-          toastEl.style.display='block';
-          void toastEl.offsetWidth;
-          toastEl.style.opacity='1';
-          toastEl.style.transform='translateY(0)';
-          if(toastTimer) clearTimeout(toastTimer);
-          toastTimer=setTimeout(()=>{
-            toastEl.style.opacity = '0';
-            toastEl.style.transform = 'translateY(6px)';
-            setTimeout(()=>toastEl.style.display='none',250);
-          }, ms||5000);
+            let toastEl = document.getElementById('hw_toast');
+            toastEl.textContent=text;
+            toastEl.style.display='block';
+            void toastEl.offsetWidth;
+            toastEl.style.opacity='1';
+            toastEl.style.transform='translateY(0)';
+            if(toastTimer) clearTimeout(toastTimer);
+            toastTimer=setTimeout(()=>{
+                toastEl.style.opacity = '0';
+                toastEl.style.transform = 'translateY(6px)';
+                setTimeout(()=>toastEl.style.display='none',250);
+            }, ms||5000);
         }
 
         function showInitialToast() {
-          const toastEl = document.createElement('div');
-          toastEl.id = 'hw_initial_toast';
-          toastEl.textContent = 'Script Ativado com Sucesso!';
-          toastEl.style.height = '36px';
-          toastEl.style.lineHeight = '36px';
-          toastEl.style.padding = '0 12px';
-          toastEl.style.fontSize = '14px';
-          toastEl.style.position = 'fixed';
-          toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
-          toastEl.style.bottom = '30px';
-          toastEl.style.background = 'rgba(0,0,0,0.85)';
-          toastEl.style.color = '#fff';
-          toastEl.style.border = '2px solid white';
-          toastEl.style.borderRadius = '8px';
-          toastEl.style.boxShadow = '0 0 8px 2px #fff';
-          toastEl.style.opacity = '0';
-          toastEl.style.transition = 'opacity 210ms ease, transform 210ms ease';
-          toastEl.style.pointerEvents = 'none';
-          toastEl.style.whiteSpace = 'nowrap';
-          toastEl.style.display = 'flex';
-          toastEl.style.alignItems = 'center';
-          toastEl.style.justifyContent = 'center';
-          document.body.appendChild(toastEl);
-          requestAnimationFrame(() => {
-              toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
-              toastEl.style.opacity = '1';
-              toastEl.style.transform = 'translateY(0)';
-          });
-          setTimeout(() => {
-              toastEl.style.opacity = '0';
-              toastEl.style.transform = 'translateY(6px)';
-              setTimeout(() => toastEl.remove(), 250);
-          }, 5000);
+            const toastEl = document.createElement('div');
+            toastEl.id = 'hw_initial_toast';
+            toastEl.textContent = 'Script Ativado com Sucesso!';
+            toastEl.style.height = '36px';
+            toastEl.style.lineHeight = '36px';
+            toastEl.style.padding = '0 12px';
+            toastEl.style.fontSize = '14px';
+            toastEl.style.position = 'fixed';
+            toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
+            toastEl.style.bottom = '30px';
+            toastEl.style.background = 'rgba(0,0,0,0.85)';
+            toastEl.style.color = '#fff';
+            toastEl.style.border = '2px solid white';
+            toastEl.style.borderRadius = '8px';
+            toastEl.style.boxShadow = '0 0 8px 2px #fff';
+            toastEl.style.opacity = '0';
+            toastEl.style.transition = 'opacity 210ms ease, transform 210ms ease';
+            toastEl.style.pointerEvents = 'none';
+            toastEl.style.whiteSpace = 'nowrap';
+            toastEl.style.display = 'flex';
+            toastEl.style.alignItems = 'center';
+            toastEl.style.justifyContent = 'center';
+            document.body.appendChild(toastEl);
+            requestAnimationFrame(() => {
+                toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
+                toastEl.style.opacity = '1';
+                toastEl.style.transform = 'translateY(0)';
+            });
+            setTimeout(() => {
+                toastEl.style.opacity = '0';
+                toastEl.style.transform = 'translateY(6px)';
+                setTimeout(() => toastEl.remove(), 250);
+            }, 5000);
         }
 
         // inicia minimizado
