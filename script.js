@@ -12,6 +12,9 @@
 (function () {
     'use strict';
 
+    // ✅ Garante que o script só funcione no domínio correto
+    if (!location.hostname.includes("saladofuturo.educacao.sp.gov.br")) return;
+
     if (document.getElementById('hw_container')) return;
 
     function onReady(fn) {
@@ -101,7 +104,6 @@
           pageEl.style.pointerEvents='auto';
           dragEl.style.display='flex';
           restoreEl.style.display='none';
-
           if(firstMax){
             dragEl.style.position='fixed';
             dragEl.style.left='50%';
@@ -157,19 +159,13 @@
           const toastEl = document.createElement('div');
           toastEl.id = 'hw_initial_toast';
           toastEl.textContent = 'Script Ativado com Sucesso!';
-
-          // altura igual ao botão de minimizar
           toastEl.style.height = '36px';
           toastEl.style.lineHeight = '36px';
           toastEl.style.padding = '0 12px';
           toastEl.style.fontSize = '14px';
-
-          // centralizar horizontalmente
           toastEl.style.position = 'fixed';
           toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
           toastEl.style.bottom = '30px';
-
-          // estilo neon
           toastEl.style.background = 'rgba(0,0,0,0.85)';
           toastEl.style.color = '#fff';
           toastEl.style.border = '2px solid white';
@@ -182,15 +178,12 @@
           toastEl.style.display = 'flex';
           toastEl.style.alignItems = 'center';
           toastEl.style.justifyContent = 'center';
-
           document.body.appendChild(toastEl);
-
           requestAnimationFrame(() => {
               toastEl.style.left = (window.innerWidth / 2 - toastEl.offsetWidth / 2) + 'px';
               toastEl.style.opacity = '1';
               toastEl.style.transform = 'translateY(0)';
           });
-
           setTimeout(() => {
               toastEl.style.opacity = '0';
               toastEl.style.transform = 'translateY(6px)';
