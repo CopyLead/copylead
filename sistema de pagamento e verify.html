@@ -1,0 +1,121 @@
+Perfeito ✅ — entendi direitinho agora.
+Você quer que o **bookmarklet só permita login se a mensalidade estiver ativa** — ou seja:
+
+* O usuário tenta fazer login com Google ou Microsoft.
+* Antes de autorizar de fato, o sistema **confere no seu banco (via webhook da Cakto)** se o e-mail dele tem mensalidade **ativa**.
+* Se **não tiver paga**, o login **não completa** e o bookmarklet mostra um erro (ex: “mensalidade expirada” ou “não encontrada”).
+
+Isso é 100% possível e seguro de fazer dentro das normas do OAuth2 e das políticas da Google e Microsoft, desde que:
+
+* A verificação de pagamento ocorra **no seu servidor (backend)**, **após o login OAuth2**;
+* Você **não bloqueie o fluxo OAuth2** em si (isso quebra as regras de autenticação), mas **nega acesso ao seu sistema** caso o status não esteja ativo.
+
+---
+
+## ⚙️ Fluxo atualizado (versão final)
+
+```
+Usuário → Bookmarklet → /auth/google (ou /auth/microsoft)
+               ↓
+OAuth2 redireciona e autentica o usuário
+               ↓
+Backend recebe o perfil (contendo o e-mail)
+               ↓
+Backend checa se esse e-mail está ativo no banco (dados da Cakto)
+               ↓
+Se estiver ATIVO → emite JWT e envia pro bookmarklet ✅
+Se NÃO estiver pago / expirado → NÃO emite JWT e devolve erro ❌
+```
+
+Assim o bookmarklet **nunca recebe token válido** se a mensalidade não estiver paga.
+
+---
+
+## 🧠 Ajuste no servidor (Node.js)
+
+No código anterior, você só precisa **modificar a função `sendTokenAndClose()`** para verificar o status antes de emitir o JWT:
+
+```js
+function sendTokenAndClose(req, res, profileInfo){
+  const email = (profileInfo.email || '').toLowerCase();
+  const row = db.prepare('SELECT last_payment_status FROM customers WHERE email=?').get(email);
+
+  // Se não tem registro ou está expirado, retorna erro
+  if(!row || !['approved','paid','ativo'].includes(row.last_payment_status)){
+    return res.send(`
+      <html><body>
+      <script>
+        if(window.opener){
+          window.opener.postMessage({error: 'mensalidade_expirada', email: ${JSON.stringify(email)}}, "*");
+          setTimeout(()=>window.close(), 300);
+        } else {
+          document.body.innerText = "Mensalidade expirada ou não encontrada.";
+        }
+      </script>
+      </body></html>
+    `);
+  }
+
+  // Se estiver ativo → emite token normalmente
+  const payload = { email, status: row.last_payment_status };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '12h' });
+  res.send(`
+    <html><body>
+    <script>
+      if(window.opener){
+        window.opener.postMessage({jwt: ${JSON.stringify(token)}}, "*");
+        setTimeout(()=>window.close(), 300);
+      } else {
+        document.body.innerText = "Login aprovado.";
+      }
+    </script>
+    </body></html>
+  `);
+}
+```
+
+---
+
+## 🧩 Ajuste no **bookmarklet**
+
+Agora ele precisa lidar com o caso de erro no login (mensalidade vencida):
+
+```js
+function openAuth(path){
+  return new Promise((resolve, reject)=>{
+    const w = window.open(BACKEND + path, 'oauth', 'width=600,height=700');
+    function onMsg(ev){
+      if(ev.source !== w) return;
+      if(ev.data && ev.data.jwt){
+        window.removeEventListener('message', onMsg);
+        resolve(ev.data.jwt);
+        try{ w.close(); }catch(e){}
+      } else if(ev.data && ev.data.error === 'mensalidade_expirada'){
+        window.removeEventListener('message', onMsg);
+        alert(`❌ Mensalidade expirada ou não encontrada para ${ev.data.email}`);
+        reject('expirada');
+        try{ w.close(); }catch(e){}
+      }
+    }
+    window.addEventListener('message', onMsg);
+  });
+}
+```
+
+Agora, se o e-mail da pessoa **não estiver com mensalidade ativa**,
+➡️ o login **é bloqueado imediatamente**
+➡️ e o usuário vê o aviso **“Mensalidade expirada ou não encontrada”**.
+
+---
+
+## ✅ Resultado final
+
+* 🔒 Somente usuários **com mensalidade paga** conseguem login e acesso.
+* 🚫 Usuários **sem pagamento ativo** não recebem JWT nem passam da tela de login.
+* 🧩 Tudo 100% dentro das normas OAuth2 (o bloqueio é feito **depois** da autenticação).
+* ⚙️ Nenhum dado sensível é exposto ao cliente.
+
+---
+
+Posso te gerar agora o **código completo (final)** com essa lógica integrada (backend + bookmarklet minificado, pronto pra deploy).
+Quer que eu monte esse pacote final pra você?
