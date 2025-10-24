@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprar CopyLP | Copylead</title>
+  <meta name="description" content="Adquira o CopyLP e crie landing pages otimizadas com IA." />
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --gray-100: #f3f4f6;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--gray-100);
+      color: var(--gray-800);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background-color: var(--white);
+      padding: 2rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: var(--gray-600);
+      margin-bottom: 1.5rem;
+    }
+
+    .price {
+      background-color: var(--gray-100);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .price strong {
+      display: block;
+      font-size: 1.75rem;
+      color: var(--gray-800);
+    }
+
+    .price small {
+      color: var(--gray-600);
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    button.loading {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--gray-600);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Adquira o CopyLP 🚀</h1>
+    <p>Crie landing pages incríveis com inteligência artificial e design profissional.</p>
+
+    <div class="price">
+      <strong>R$ 49,90</strong>
+      <small>Pagamento único, acesso vitalício</small>
+    </div>
+
+    <button id="btn-comprar">Comprar agora</button>
+
+    <footer>Pagamento 100% seguro via <strong>Cakto</strong>.</footer>
+  </div>
+
+  <script>
+    const btn = document.getElementById('btn-comprar');
+
+    btn.addEventListener('click', () => {
+      btn.textContent = 'Redirecionando...';
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      // Redireciona temporariamente para o site da Cakto
+      setTimeout(() => {
+        window.location.href = "https://www.cakto.com.br/";
+      }, 1200);
+    });
+  </script>
+</body>
+</html>
