@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CopyLP Login</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Card central compacto */
+.login-container {
+    width: 280px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    background-color: #fff;
+}
+
+/* Título */
+.hw_title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Botões brancos com borda preta */
+.btn {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center; /* centraliza verticalmente os logos */
+    gap: 8px;
+    justify-content: flex-start;
+    font-size: 14px;
+    color: #000;
+}
+
+/* Google Logo */
+.google {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border-top: 4px solid #ea4335;
+    border-right: 4px solid #4285f4;
+    border-bottom: 4px solid #34a853;
+    border-left: 4px solid #fbbc05;
+    flex-shrink: 0; /* não deixa encolher */
+}
+
+/* Microsoft Logo */
+.microsoft {
+    width: 16px;
+    height: 16px;
+    background-color: #f25022;
+    box-shadow: 
+        16px 0 0 0 #7fba00, 
+        0 16px 0 0 #00a4ef, 
+        16px 16px 0 0 #ffb900;
+    display: inline-block;
+    flex-shrink: 0; /* não deixa encolher */
+}
+
+/* Texto de instrução */
+.small {
+    font-size: 12px;
+    color: #666666;
+    text-align: center;
+    margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="hw_title">COPYLP LOGIN</div>
+
+    <!-- Botão Google -->
+    <button class="btn">
+        <div class="google"></div>
+        <span>Entrar com Google</span>
+    </button>
+
+    <!-- Botão Microsoft -->
+    <button class="btn">
+        <div class="microsoft"></div>
+        <span>Entrar com Microsoft</span>
+    </button>
+
+    <div class="small">Após login, você poderá gerar sua chave e usar o painel normalmente.</div>
+</div>
+
+</body>
+</html>
