@@ -5,14 +5,12 @@
   <title>Webhook Viewer CopyLP</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       padding: 20px;
       background: #111;
       color: #0f0;
     }
-    h2 {
-      color: #0f0;
-    }
+    h2 { color: #0f0; }
     pre {
       background: #222;
       padding: 15px;
@@ -30,9 +28,7 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
-    button:hover {
-      background: #1aff1a;
-    }
+    button:hover { background: #1aff1a; }
   </style>
 </head>
 <body>
@@ -47,7 +43,7 @@
     // Atualiza eventos do backend a cada 3 segundos
     async function atualizarEventos() {
       try {
-        const res = await fetch('/api/webhook'); // Endpoint GET que retorna últimos eventos
+        const res = await fetch('/api/webhook');
         const eventos = await res.json();
 
         saida.textContent = eventos.length
@@ -75,7 +71,6 @@
         }
       };
 
-      // Mostra na tela imediatamente
       saida.textContent = JSON.stringify([eventoFake], null, 2);
       alert("💰 Pagamento simulado para: " + eventoFake.data.customer.email);
     });
