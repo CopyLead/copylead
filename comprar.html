@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprar CopyLP | Copylead</title>
-  <meta name="description" content="Adquira o CopyLP e crie landing pages otimizadas com IA." />
   <style>
     body {
       margin: 0;
@@ -12,16 +11,11 @@
       font-family: "Courier New", monospace;
       background: #000;
       color: #00ff00;
+      text-align: center;
+      min-height: 100vh;
       overflow-x: hidden;
-      min-height: 100%;
     }
 
-    html {
-      height: 100%;
-      scroll-behavior: smooth;
-    }
-
-    /* Fundo Matrix */
     .matrix-bg {
       position: fixed;
       top: 0;
@@ -50,19 +44,17 @@
     }
 
     .container {
-      max-width: 420px;
-      margin: 0 auto;
       padding: 40px 20px;
-      text-align: center;
       position: relative;
       z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     h1 {
       font-size: 2.5rem;
       text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
       margin-bottom: 1rem;
-      letter-spacing: 2px;
     }
 
     p {
@@ -72,83 +64,60 @@
       line-height: 1.4;
     }
 
-    .price {
-      border: 1px solid #00ff00;
-      background: rgba(0, 10, 0, 0.7);
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
-    }
-
-    .price strong {
-      display: block;
-      font-size: 2rem;
-      color: #00ff00;
-      text-shadow: 0 0 10px #00ff00;
-    }
-
-    .price small {
-      font-size: 0.9rem;
-      color: #00ff00;
-      opacity: 0.8;
-    }
-
-    button {
-      width: 100%;
-      background: linear-gradient(45deg, #003300, #00aa00);
+    .pix-btn {
+      display: inline-block;
+      background: linear-gradient(45deg, #003300, #006600);
       color: #00ff00;
       border: 2px solid #00ff00;
-      padding: 1rem;
+      padding: 15px 40px;
       border-radius: 10px;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.25s ease;
+      text-decoration: none;
       text-shadow: 0 0 5px #00ff00;
+      margin-top: 20px;
     }
 
-    button:hover {
-      background: linear-gradient(45deg, #00aa00, #00ff00);
+    .pix-btn:hover {
+      background: linear-gradient(45deg, #006600, #00ff00);
       color: #000;
       box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
       transform: translateY(-2px);
     }
 
-    button.loading {
-      background: #003300;
-      color: #00ff00;
-      cursor: not-allowed;
-      opacity: 0.7;
+    .footer {
+      margin-top: 50px;
+      font-size: 0.9rem;
     }
 
-    footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #00ff00;
-      opacity: 0.7;
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .pix-btn { font-size: 1rem; padding: 12px 30px; }
     }
   </style>
 </head>
 <body>
-  <div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
+  <div class="matrix-bg" id="matrixBg"></div>
 
   <div class="container">
-    <h1>Comprar CopyLP 🚀</h1>
-    <p>Crie landing pages profissionais com inteligência artificial e design avançado.</p>
+    <h1>🛒 Comprar CopyLP</h1>
+    <p>
+      O <strong>CopyLP</strong> é um sistema inovador que permite copiar e automatizar códigos de forma rápida e prática, com estilo Matrix e funcionalidades únicas.<br><br>
+      Nosso projeto foi desenvolvido por <strong>Pinotti</strong> e <strong>Luiz</strong> para ajudar estudantes e desenvolvedores a economizar tempo e aumentar a produtividade.
+    </p>
 
-    <div class="price">
-      <strong>R$ 49,90</strong>
-      <small>Pagamento único • Acesso vitalício</small>
+    <!-- Botão de compra via PIX -->
+    <a href="https://www.cakto.com.br/" target="_blank" class="pix-btn">💰 Pagar com PIX</a>
+
+    <div class="footer">
+      <p>🌴 Desenvolvido pelos mais inteligentes da Palmeirinha 🌴</p>
     </div>
-
-    <button id="btn-comprar">🛒 Comprar agora</button>
-
-    <footer>Pagamento 100% seguro via <strong>Cakto</strong>.</footer>
   </div>
 
   <script>
-    // Efeito matrix
+    // Matrix
     function createMatrixEffect() {
       const matrixBg = document.getElementById('matrixBg');
       matrixBg.innerHTML = '';
@@ -160,7 +129,7 @@
         column.style.animationDuration = (Math.random() * 3 + 2) + 's';
         column.style.animationDelay = Math.random() * 2 + 's';
         let binaryText = '';
-        for (let j = 0; j < 40; j++) {
+        for (let j = 0; j < 50; j++) {
           binaryText += Math.random() > 0.5 ? '1' : '0';
           if (j % 8 === 7) binaryText += '\n';
         }
@@ -171,17 +140,6 @@
 
     window.addEventListener('resize', createMatrixEffect);
     window.addEventListener('load', createMatrixEffect);
-
-    // Botão de compra
-    const btn = document.getElementById('btn-comprar');
-    btn.addEventListener('click', () => {
-      btn.textContent = 'Redirecionando...';
-      btn.classList.add('loading');
-      btn.disabled = true;
-      setTimeout(() => {
-        window.location.href = "https://www.cakto.com.br/";
-      }, 1200);
-    });
   </script>
 </body>
 </html>
