@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Webhook Viewer CopyLP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #111;
+      color: #0f0;
+    }
+    h2 {
+      color: #0f0;
+    }
+    pre {
+      background: #222;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    button {
+      background: #0f0;
+      color: #111;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #1aff1a;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔔 Eventos Recebidos da Cakto/Pluga</h2>
+  <button id="simular">Simular Evento</button>
+  <pre id="saida">Nenhum evento ainda...</pre>
+
+  <script>
+    const saida = document.getElementById('saida');
+    const btn = document.getElementById('simular');
+
+    // Atualiza eventos do backend a cada 3 segundos
+    async function atualizarEventos() {
+      try {
+        const res = await fetch('/api/webhook'); // Endpoint GET que retorna últimos eventos
+        const eventos = await res.json();
+
+        saida.textContent = eventos.length
+          ? JSON.stringify(eventos, null, 2)
+          : 'Nenhum evento ainda...';
+      } catch (err) {
+        saida.textContent = 'Erro ao buscar eventos: ' + err;
+      }
+    }
+
+    setInterval(atualizarEventos, 3000);
+    atualizarEventos();
+
+    // Botão para simular evento localmente
+    btn.addEventListener('click', () => {
+      const eventoFake = {
+        event: "payment.approved",
+        data: {
+          id: "pay_12345",
+          amount: 1999,
+          status: "approved",
+          customer: { name: "João Silva", email: "joao@example.com" },
+          product: { name: "Script Premium" },
+          createdAt: new Date().toISOString()
+        }
+      };
+
+      // Mostra na tela imediatamente
+      saida.textContent = JSON.stringify([eventoFake], null, 2);
+      alert("💰 Pagamento simulado para: " + eventoFake.data.customer.email);
+    });
+  </script>
+</body>
+</html>
