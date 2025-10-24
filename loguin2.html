@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CopyLP Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Card central compacto */
+        .login-container {
+            width: 280px;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background-color: #fff;
+        }
+
+        /* Imagem do logo com bordas mais pontudas */
+        .logo {
+            width: 100px;
+            margin-bottom: 20px;
+            pointer-events: none; /* impede clique */
+            user-select: none;    /* impede seleção */
+            border-radius: 4px;   /* borda mais pontuda */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* sombra suave */
+        }
+
+        /* Título */
+        .hw_title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Botões brancos com borda preta */
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
+            font-size: 14px;
+            color: #000;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Imagens dos logos dos botões */
+        .btn img {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Texto de instrução */
+        .small {
+            font-size: 12px;
+            color: #666666;
+            text-align: center;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Imagem do logo -->
+    <img src="https://i.redd.it/meu-gato-%C3%A9-praticamente-o-gato-do-meme-v0-n9dleoj8dgfc1.jpg?width=720&format=pjpg&auto=webp&s=426eb562eddf7898e5ba777104b7065552be8114" alt="Logo CopyLP" class="logo">
+
+    <!-- Título -->
+    <div class="hw_title">CopyLP Login</div>
+
+    <!-- Botão Google -->
+    <button type="button" class="btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+        <span>Entrar com Google</span>
+    </button>
+
+    <!-- Botão Microsoft -->
+    <button type="button" class="btn">
+        <img src="https://cdn-icons-png.flaticon.com/128/732/732221.png" alt="Microsoft Logo">
+        <span>Entrar com Microsoft</span>
+    </button>
+
+    <div class="small">Após login, você poderá gerar sua chave e usar o painel normalmente.</div>
+</div>
+
+</body>
+</html>
