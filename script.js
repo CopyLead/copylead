@@ -193,7 +193,7 @@
       </div>
   
       <div id="hw_restore" title="Restaurar painel" draggable="false">
-        <img src="https://camo.githubusercontent.com/557ad68f0a36c0067b8c94210fcdf3000374b7378ddad748478d4a0dc854da21/68747470733a2f2f692e696d6775722e636f6d2f6c336c584839302e706e67" alt="Ícone"/>
+        <img src="https://imgs.search.brave.com/eDiXmYCFi9LQc1EyM_pefR7cUB9kYdldFRw-pu2WO9o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jYW1v/LmdpdGh1YnVzZXJj/b250ZW50LmNvbS8x/YmNmN2JiODBhYzMx/YmZiYTBiOGI1ZjMw/MTUwYjgxOTY0NDdh/MDg1MzU2NjljZWEy/YjBmOTZkZDVhMThk/NDNhLzY4NzQ3NDcw/NzMzYTJmMmY2OTJl/Njk2ZDY3NzU3MjJl/NjM2ZjZkMmY2YzMz/NmM1ODQ4MzkzMDJl/NzA2ZTY3" alt="Ícone"/>
       </div>
   
       <div id="hw_toast"></div>
