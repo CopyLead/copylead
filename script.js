@@ -335,4 +335,9 @@
       restoreEl.style.display='flex';
       showInitialToast();
     });
+
+    document.getElementById("hw_google").addEventListener("click", () => {
+    window.location.href = "https://copylead.vercel.app/api/auth/signin/google";
+    });
+
   })();
