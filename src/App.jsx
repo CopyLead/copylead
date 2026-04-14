@@ -2,6 +2,7 @@ import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ComprarPage from './pages/ComprarPage';
 import FluxoAutenticacaoPage from './pages/FluxoAutenticacaoPage';
+import ExtensaoPage from './pages/ExtensaoPage';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
           <NavLink to="/login">Login</NavLink>
           <NavLink to="/comprar">Comprar</NavLink>
           <NavLink to="/fluxo-auth">Fluxo de autenticação</NavLink>
+          <NavLink to="/extensao">Extensão</NavLink>
         </nav>
       </header>
 
@@ -21,6 +23,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/comprar" element={<ComprarPage />} />
           <Route path="/fluxo-auth" element={<FluxoAutenticacaoPage />} />
+          <Route path="/extensao" element={<ExtensaoPage />} />
         </Routes>
       </main>
     </div>
